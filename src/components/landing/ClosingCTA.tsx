@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom"
-import { Button } from "@/components/ui/button"
+import { Button, ButtonArrow } from "@/components/ui/button"
 import { Container } from "@/components/ui/container"
 
 /**
@@ -26,9 +26,10 @@ export function ClosingCTA() {
             <Button
               size="lg"
               onClick={() => navigate("/cadastro")}
-              className="bg-paper text-accent hover:bg-paper/90"
+              className="bg-paper text-accent hover:bg-ink hover:text-paper"
             >
               Analisar um contrato
+              <ButtonArrow />
             </Button>
             <p className="mt-4 font-mono text-[12px] text-paper/70">
               Grátis · sem cartão

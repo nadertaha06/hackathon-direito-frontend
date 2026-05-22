@@ -17,24 +17,27 @@ export function Header() {
       <Container className="flex h-16 items-center justify-between">
         <Wordmark />
 
-        <nav className="flex items-center gap-7" aria-label="Principal">
+        <nav
+          className="flex items-center gap-7 font-mono text-[12px] uppercase tracking-[0.12em]"
+          aria-label="Principal"
+        >
           {NAV.map((item) => (
             <a
               key={item.href}
               href={item.href}
-              className="hidden text-[14px] text-stone transition-colors duration-[250ms] hover:text-ink sm:inline"
+              className="hidden text-stone transition-colors duration-[250ms] hover:text-ink sm:inline"
             >
               {item.label}
             </a>
           ))}
           <Link
             to="/login"
-            className="text-[14px] text-stone transition-colors duration-[250ms] hover:text-ink"
+            className="text-stone transition-colors duration-[250ms] hover:text-ink"
           >
             Entrar
           </Link>
           <Button size="sm" onClick={() => navigate("/cadastro")}>
-            Analisar contrato
+            Analisar
           </Button>
         </nav>
       </Container>

@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom"
-import { Button } from "@/components/ui/button"
+import { Button, ButtonArrow } from "@/components/ui/button"
 import { Container } from "@/components/ui/container"
 import { ContractExhibit } from "./ContractExhibit"
 
@@ -44,6 +44,7 @@ export function Hero() {
             <div className="mt-10 flex flex-wrap items-center gap-3">
               <Button size="lg" onClick={() => navigate("/cadastro")}>
                 Analisar um contrato
+                <ButtonArrow />
               </Button>
               <Button size="lg" variant="secondary" onClick={() => navigate("/login")}>
                 Já tenho conta

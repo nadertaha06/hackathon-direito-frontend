@@ -5,13 +5,13 @@
  */
 export function ContractExhibit() {
   return (
-    <figure className="border border-line bg-elevated">
-      {/* Cabeçalho do documento */}
-      <figcaption className="flex items-center justify-between border-b border-line px-5 py-3">
-        <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-stone">
+    <figure className="border border-ink bg-elevated shadow-[6px_6px_0_0_var(--color-ink)]">
+      {/* Masthead em tinta — âncora de contraste do hero */}
+      <figcaption className="flex items-center justify-between bg-ink px-5 py-3 text-paper">
+        <span className="font-mono text-[11px] uppercase tracking-[0.14em]">
           Contrato de prestação de serviços
         </span>
-        <span className="font-mono text-[11px] tabular text-mute">fl. 03</span>
+        <span className="font-mono text-[11px] tabular text-paper/60">fl. 03</span>
       </figcaption>
 
       <div className="space-y-5 px-5 py-6 font-mono text-[12.5px] leading-relaxed text-ink">
