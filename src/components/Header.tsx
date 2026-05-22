@@ -1,49 +1,43 @@
-import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Wordmark } from "./Wordmark"
 import { Button } from "./ui/button"
+import { Container } from "./ui/container"
 
-/** Header fixo, estilo "dossiê": hairline superior + nav mono. Vira vidro ao rolar. */
+const NAV = [
+  { label: "Sobre", href: "#sobre" },
+  { label: "Como funciona", href: "#como-funciona" },
+]
+
+/** Nav superior: wordmark à esquerda, links discretos à direita. Hairline embaixo. */
 export function Header() {
   const navigate = useNavigate()
-  const [scrolled, setScrolled] = useState(false)
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8)
-    onScroll()
-    window.addEventListener("scroll", onScroll, { passive: true })
-    return () => window.removeEventListener("scroll", onScroll)
-  }, [])
 
   return (
-    <header
-      className={
-        "fixed inset-x-0 top-0 z-50 transition-colors duration-300 " +
-        (scrolled
-          ? "bg-ink/80 backdrop-blur-xl border-b border-white/10"
-          : "bg-transparent border-b border-transparent")
-      }
-    >
-      <div className="mx-auto flex h-16 max-w-[88rem] items-center justify-between px-5 md:px-10">
-        <div className="flex items-center gap-4">
-          <Wordmark />
-          <span className="hidden font-mono text-[10px] uppercase tracking-[0.22em] text-fg-muted/60 lg:inline">
-            / análise de contratos
-          </span>
-        </div>
+    <header className="sticky top-0 z-50 border-b border-line bg-paper/85 backdrop-blur-sm">
+      <Container className="flex h-16 items-center justify-between">
+        <Wordmark />
 
-        <nav className="flex items-center gap-1.5 sm:gap-3" aria-label="Acesso">
-          <button
-            onClick={() => navigate("/login")}
-            className="font-mono text-xs uppercase tracking-widest text-fg-muted transition-colors hover:text-fg"
+        <nav className="flex items-center gap-7" aria-label="Principal">
+          {NAV.map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              className="hidden text-[14px] text-stone transition-colors duration-[250ms] hover:text-ink sm:inline"
+            >
+              {item.label}
+            </a>
+          ))}
+          <Link
+            to="/login"
+            className="text-[14px] text-stone transition-colors duration-[250ms] hover:text-ink"
           >
-            entrar
-          </button>
+            Entrar
+          </Link>
           <Button size="sm" onClick={() => navigate("/cadastro")}>
             Analisar contrato
           </Button>
         </nav>
-      </div>
+      </Container>
     </header>
   )
 }

@@ -1,12 +1,7 @@
 import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { ArrowLeft } from "lucide-react"
-import { motion, useReducedMotion } from "framer-motion"
 import { Wordmark } from "@/components/Wordmark"
-import { AuroraBackground } from "@/components/fx/AuroraBackground"
-import { GridBackground } from "@/components/fx/GridBackground"
-import { Spotlight } from "@/components/fx/Spotlight"
-import { BorderBeam } from "@/components/fx/BorderBeam"
 
 interface AuthLayoutProps {
   title: string
@@ -16,48 +11,57 @@ interface AuthLayoutProps {
   footer: ReactNode
 }
 
-/** Layout escuro centrado para /login e /cadastro. Cartão de vidro com border-beam. */
+/**
+ * Split-screen 50/50. Esquerda: painel editorial (citação tipográfica sobre
+ * direito do consumidor). Direita: formulário sobre papel, ≤ 400px.
+ * Mobile: o painel vira uma faixa curta acima do form. Sem ilustração, sem fx.
+ */
 export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProps) {
-  const reduce = useReducedMotion()
-
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden bg-ink">
-      <AuroraBackground />
-      <GridBackground />
-      <Spotlight />
-
-      <header className="relative mx-auto flex w-full max-w-md items-center justify-between px-6 py-6">
+    <div className="min-h-screen md:grid md:grid-cols-2">
+      {/* Painel editorial */}
+      <aside className="relative flex flex-col justify-between border-b border-line bg-surface px-6 py-8 md:border-b-0 md:border-r md:px-12 md:py-12">
         <Wordmark />
-        <Link
-          to="/"
-          className="inline-flex items-center gap-1.5 text-sm text-fg-muted transition-colors hover:text-fg"
-        >
-          <ArrowLeft className="h-4 w-4" strokeWidth={2} />
-          Início
-        </Link>
-      </header>
 
-      <main className="relative flex flex-1 items-center justify-center px-6 pb-16">
-        <motion.div
-          initial={{ opacity: 0, y: reduce ? 0 : 18, scale: reduce ? 1 : 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full max-w-md"
-        >
-          <div className="text-center">
-            <h1 className="font-display text-3xl font-semibold tracking-tight text-fg">
+        <blockquote className="my-10 max-w-[24ch] md:my-0">
+          <p className="font-display text-[clamp(1.75rem,3.5vw,3rem)] font-medium leading-[1.08] tracking-tight text-ink">
+            “São nulas de pleno direito as cláusulas que coloquem o consumidor em
+            desvantagem exagerada.”
+          </p>
+          <footer className="mt-6 font-mono text-[12px] uppercase tracking-[0.12em] text-accent">
+            CDC · Lei 8.078/90, art. 51
+          </footer>
+        </blockquote>
+
+        <p className="hidden font-mono text-[12px] text-mute md:block">
+          Análise de contratos fundamentada na lei.
+        </p>
+      </aside>
+
+      {/* Formulário */}
+      <main className="flex flex-col bg-paper px-6 py-8 md:px-12 md:py-12">
+        <div className="flex justify-end">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1.5 text-[13px] text-stone transition-colors duration-[250ms] hover:text-ink"
+          >
+            <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
+            Início
+          </Link>
+        </div>
+
+        <div className="flex flex-1 items-center justify-center py-10">
+          <div className="w-full max-w-[400px]">
+            <h1 className="font-display text-[clamp(2rem,4vw,2.5rem)] font-medium leading-tight tracking-tight text-ink">
               {title}
             </h1>
-            <p className="mt-2 text-fg-muted">{subtitle}</p>
-          </div>
+            <p className="mt-2 text-[15px] text-stone">{subtitle}</p>
 
-          <div className="relative mt-8 overflow-hidden rounded-2xl border border-glass-border bg-glass p-6 shadow-[0_1px_0_0_rgba(255,255,255,0.06)_inset,0_30px_60px_-25px_rgba(0,0,0,0.8)] backdrop-blur-xl sm:p-8">
-            <BorderBeam />
-            <div className="relative">{children}</div>
-          </div>
+            <div className="mt-9">{children}</div>
 
-          <p className="mt-6 text-center text-sm text-fg-muted">{footer}</p>
-        </motion.div>
+            <p className="mt-8 text-[14px] text-stone">{footer}</p>
+          </div>
+        </div>
       </main>
     </div>
   )

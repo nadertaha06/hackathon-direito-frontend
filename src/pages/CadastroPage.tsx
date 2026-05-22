@@ -62,24 +62,24 @@ export function CadastroPage() {
       type="button"
       onClick={() => setShowPassword((v) => !v)}
       aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-      className="grid h-9 w-9 place-items-center rounded-md text-fg-muted transition-colors hover:text-fg"
+      className="grid h-9 w-9 place-items-center rounded-[var(--radius-input)] text-mute transition-colors duration-[250ms] hover:text-ink"
     >
       {showPassword ? (
-        <EyeOff className="h-[18px] w-[18px]" strokeWidth={1.75} />
+        <EyeOff className="h-[18px] w-[18px]" strokeWidth={1.5} />
       ) : (
-        <Eye className="h-[18px] w-[18px]" strokeWidth={1.75} />
+        <Eye className="h-[18px] w-[18px]" strokeWidth={1.5} />
       )}
     </button>
   )
 
   return (
     <AuthLayout
-      title="Crie sua conta"
-      subtitle="Leva menos de um minuto. É de graça."
+      title="Criar conta"
+      subtitle="Leva menos de um minuto. A primeira análise é gratuita."
       footer={
         <>
           Já tem conta?{" "}
-          <Link to="/login" className="font-medium text-glow hover:underline">
+          <Link to="/login" className="font-medium text-accent hover:underline">
             Entrar
           </Link>
         </>
@@ -97,7 +97,7 @@ export function CadastroPage() {
             autoComplete="email"
             placeholder="voce@email.com"
             required
-            icon={<Mail strokeWidth={1.75} />}
+            icon={<Mail strokeWidth={1.5} />}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -111,7 +111,7 @@ export function CadastroPage() {
             autoComplete="new-password"
             placeholder="••••••••"
             required
-            icon={<Lock strokeWidth={1.75} />}
+            icon={<Lock strokeWidth={1.5} />}
             trailing={toggle}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -121,7 +121,7 @@ export function CadastroPage() {
             id="password-hint"
             className={cn(
               "mt-1.5 flex items-center gap-1.5 text-xs transition-colors",
-              passwordLongEnough ? "text-signal-green-on-dark" : "text-fg-muted",
+              passwordLongEnough ? "text-success" : "text-fg-muted",
             )}
           >
             {passwordLongEnough && <Check className="h-3.5 w-3.5" strokeWidth={2.5} />}
@@ -137,18 +137,18 @@ export function CadastroPage() {
             autoComplete="new-password"
             placeholder="••••••••"
             required
-            icon={<ShieldCheck strokeWidth={1.75} />}
+            icon={<ShieldCheck strokeWidth={1.5} />}
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
             aria-invalid={confirm.length > 0 && !passwordsMatch}
           />
           {confirm.length > 0 && !passwordsMatch && (
-            <p className="mt-1.5 text-xs text-signal-red-on-dark">
+            <p className="mt-1.5 text-xs text-danger">
               As senhas não conferem.
             </p>
           )}
           {passwordsMatch && (
-            <p className="mt-1.5 flex items-center gap-1.5 text-xs text-signal-green-on-dark">
+            <p className="mt-1.5 flex items-center gap-1.5 text-xs text-success">
               <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
               As senhas conferem
             </p>

@@ -6,9 +6,9 @@ export function FormError({ message }: { message: string }) {
   return (
     <div
       role="alert"
-      className="flex items-start gap-2 rounded-lg border border-signal-red-on-dark/30 bg-signal-red-on-dark/10 px-3 py-2.5 text-sm text-signal-red-on-dark"
+      className="flex items-start gap-2 rounded-[var(--radius-input)] border border-danger bg-danger/[0.06] px-3 py-2.5 text-[14px] text-danger"
     >
-      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={2} />
+      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.5} />
       <span>{message}</span>
     </div>
   )

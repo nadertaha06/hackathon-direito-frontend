@@ -34,12 +34,12 @@ export function LoginPage() {
 
   return (
     <AuthLayout
-      title="Bem-vindo de volta"
-      subtitle="Entre para ver suas análises."
+      title="Entrar"
+      subtitle="Acesse suas análises."
       footer={
         <>
           Não tem conta?{" "}
-          <Link to="/cadastro" className="font-medium text-glow hover:underline">
+          <Link to="/cadastro" className="font-medium text-accent hover:underline">
             Criar conta
           </Link>
         </>
@@ -57,7 +57,7 @@ export function LoginPage() {
             autoComplete="email"
             placeholder="voce@email.com"
             required
-            icon={<Mail strokeWidth={1.75} />}
+            icon={<Mail strokeWidth={1.5} />}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             aria-invalid={Boolean(error)}
@@ -72,18 +72,18 @@ export function LoginPage() {
             autoComplete="current-password"
             placeholder="••••••••"
             required
-            icon={<Lock strokeWidth={1.75} />}
+            icon={<Lock strokeWidth={1.5} />}
             trailing={
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
                 aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-                className="grid h-9 w-9 place-items-center rounded-md text-fg-muted transition-colors hover:text-fg"
+                className="grid h-9 w-9 place-items-center rounded-[var(--radius-input)] text-mute transition-colors duration-[250ms] hover:text-ink"
               >
                 {showPassword ? (
-                  <EyeOff className="h-[18px] w-[18px]" strokeWidth={1.75} />
+                  <EyeOff className="h-[18px] w-[18px]" strokeWidth={1.5} />
                 ) : (
-                  <Eye className="h-[18px] w-[18px]" strokeWidth={1.75} />
+                  <Eye className="h-[18px] w-[18px]" strokeWidth={1.5} />
                 )}
               </button>
             }

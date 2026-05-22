@@ -2,6 +2,7 @@ import * as React from "react"
 import * as LabelPrimitive from "@radix-ui/react-label"
 import { cn } from "@/lib/utils"
 
+/** Label acima do campo, mono em caixa-alta discreta — registro editorial. */
 const Label = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
@@ -9,7 +10,7 @@ const Label = React.forwardRef<
   <LabelPrimitive.Root
     ref={ref}
     className={cn(
-      "block text-sm font-medium text-fg/90 font-sans mb-1.5",
+      "mb-2 block font-mono text-[11px] uppercase tracking-[0.14em] text-stone",
       className,
     )}
     {...props}

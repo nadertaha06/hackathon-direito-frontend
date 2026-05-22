@@ -1,59 +1,33 @@
 import { Link } from "react-router-dom"
 import { cn } from "@/lib/utils"
+import { LogoMark, type LogoVariant } from "@/components/LogoMark"
 
 interface WordmarkProps {
   className?: string
-  /** Quando true, não envolve em <Link> (útil no header de páginas de auth). */
+  /** Quando true, renderiza como <span> em vez de <Link> (ex: header de auth). */
   asText?: boolean
-}
-
-/** Mark SVG: balança da justiça estilizada com gradiente âmbar e glow no hover. */
-function LogoMark() {
-  return (
-    <span className="relative grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/[0.04] shadow-[0_0_18px_-6px_rgba(232,179,117,0.6)] transition-all duration-300 group-hover:border-glow/40 group-hover:shadow-[0_0_24px_-4px_rgba(232,179,117,0.85)]">
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        className="h-5 w-5"
-        aria-hidden="true"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <defs>
-          <linearGradient id="cj-mark" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#ffcf8f" />
-            <stop offset="1" stopColor="#d99a5b" />
-          </linearGradient>
-        </defs>
-        <g stroke="url(#cj-mark)" strokeWidth="1.6">
-          {/* haste central */}
-          <path d="M12 3.5v17" />
-          <path d="M6.5 20.5h11" />
-          {/* travessa */}
-          <path d="M5 7.5h14" />
-          {/* pratos da balança */}
-          <path d="M5 7.5 2.6 13a2.4 2.4 0 0 0 4.8 0L5 7.5Z" />
-          <path d="M19 7.5 16.6 13a2.4 2.4 0 0 0 4.8 0L19 7.5Z" />
-        </g>
-        <circle cx="12" cy="5" r="1.6" fill="url(#cj-mark)" />
-      </svg>
-    </span>
-  )
+  /** Symbol mark a exibir. Default: selo cortado. */
+  variant?: LogoVariant
+  /** Esconde o mark e mostra só o texto. */
+  markHidden?: boolean
 }
 
 /**
- * Logo "Contrato Justo": mark da balança + texto. "Justo" recebe gradiente
- * âmbar com shimmer animado (efeito tech sutil).
+ * Logo "Contrato Justo": symbol mark em terracota + texto em Fraunces 500.
+ * "Justo" recebe um sublinhado hairline no acento — sutileza tipográfica.
  */
-export function Wordmark({ className, asText = false }: WordmarkProps) {
+export function Wordmark({
+  className,
+  asText = false,
+  variant = "seal",
+  markHidden = false,
+}: WordmarkProps) {
   const content = (
-    <span className={cn("group inline-flex items-center gap-2.5", className)}>
-      <LogoMark />
-      <span className="font-display text-xl font-semibold tracking-tight text-fg">
+    <span className={cn("inline-flex items-center gap-2.5", className)}>
+      {!markHidden && <LogoMark variant={variant} className="h-7 w-7 text-accent" />}
+      <span className="font-display text-[19px] font-medium leading-none tracking-tight text-ink">
         Contrato{" "}
-        <span className="bg-[linear-gradient(110deg,#d99a5b,45%,#ffcf8f,55%,#d99a5b)] bg-[length:200%_100%] bg-clip-text text-transparent animate-shimmer">
-          Justo
-        </span>
+        <span className="border-b border-accent pb-[1px] text-ink">Justo</span>
       </span>
     </span>
   )
