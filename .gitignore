@@ -25,3 +25,11 @@ dist-ssr
 
 # local env
 .env
+
+# ruvector / artefatos locais
+ruvector.db
+*.tsbuildinfo
+.vercel/
+.planning/
+.redesign/
+.claude-flow/
