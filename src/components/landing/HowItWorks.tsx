@@ -23,30 +23,23 @@ export function HowItWorks() {
   return (
     <section id="como-funciona" className="border-b border-line bg-surface">
       <Container className="py-20 md:py-28">
-        <header className="flex items-baseline gap-4">
-          <span className="font-mono text-[12px] uppercase tracking-[0.16em] text-accent">
-            Como funciona
-          </span>
-          <span className="h-px flex-1 bg-line" />
-        </header>
+        <p className="font-sans text-[12px] font-bold uppercase tracking-[0.16em] text-accent">
+          Como funciona
+        </p>
+        <h2 className="mt-4 max-w-[20ch] font-display text-[clamp(2rem,4vw,2.75rem)] font-medium leading-[1.06] tracking-[-0.01em] text-ink">
+          Três passos entre a dúvida e a resposta.
+        </h2>
 
-        <div className="mt-12 grid gap-px border-y border-line bg-line md:grid-cols-3">
+        <div className="mt-14 grid gap-10 md:grid-cols-3 md:gap-8">
           {STEPS.map((step) => (
-            <div
-              key={step.n}
-              className="group relative overflow-hidden bg-surface px-6 pb-9 pt-8 md:px-8"
-            >
-              {/* Numeral-fantasma gigante (marca de revista) */}
-              <span className="ghost-numeral pointer-events-none absolute -right-2 -top-6 text-[8rem] font-medium transition-colors duration-[250ms] group-hover:text-accent/15">
+            <div key={step.n}>
+              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-accent font-mono text-[15px] font-medium tabular text-white">
                 {step.n}
               </span>
-              <span className="relative font-mono text-[12px] uppercase tracking-[0.14em] text-accent">
-                Etapa {step.n}
-              </span>
-              <h3 className="relative mt-6 font-display text-[26px] font-medium leading-tight text-ink">
+              <h3 className="mt-6 font-display text-[24px] font-medium leading-tight text-ink">
                 {step.title}
               </h3>
-              <p className="relative mt-3 max-w-[40ch] text-[15px] leading-relaxed text-stone">
+              <p className="mt-2.5 max-w-[40ch] text-[15.5px] leading-[1.6] text-stone">
                 {step.body}
               </p>
             </div>

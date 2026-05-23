@@ -18,26 +18,26 @@ export function Header() {
         <Wordmark />
 
         <nav
-          className="flex items-center gap-7 font-mono text-[12px] uppercase tracking-[0.12em]"
+          className="flex items-center gap-7 font-sans text-[14px] font-medium"
           aria-label="Principal"
         >
           {NAV.map((item) => (
             <a
               key={item.href}
               href={item.href}
-              className="hidden text-stone transition-colors duration-[250ms] hover:text-ink sm:inline"
+              className="hidden text-stone transition-colors duration-200 hover:text-accent sm:inline"
             >
               {item.label}
             </a>
           ))}
           <Link
             to="/login"
-            className="text-stone transition-colors duration-[250ms] hover:text-ink"
+            className="text-stone transition-colors duration-200 hover:text-accent"
           >
             Entrar
           </Link>
           <Button size="sm" onClick={() => navigate("/cadastro")}>
-            Analisar
+            Analisar contrato
           </Button>
         </nav>
       </Container>

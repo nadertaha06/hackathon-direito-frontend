@@ -1,91 +1,79 @@
 @import "tailwindcss";
 
-/* Fontes carregadas via <link> em index.html: Fraunces (display), Geist (sans), Geist Mono. */
+/* Fontes via <link> em index.html: EB Garamond (display), Lato (sans), Geist Mono (dados). */
 
 /* ─────────────────────────────────────────────────────────────────────────
-   Contrato Justo — Design System "Editorial-tech-jurídica"
-   Paleta papel/tinta com único acento terracota. Hairlines, não sombras.
+   Contrato Justo — Design System "Bordô premium"
+   Vinho profundo como acento único + creme quente + quase-preto.
+   Toque de dourado quente apenas sobre as faixas bordô (combinação clássica).
    ───────────────────────────────────────────────────────────────────────── */
 @theme {
-  /* Superfícies (claro / default) */
-  --color-paper: #fafaf7;        /* fundo base — não branco puro */
-  --color-surface: #f2f1ec;      /* seção/painel rebaixado */
-  --color-elevated: #ffffff;     /* superfície elevada (raro) */
-  --color-line: #e5e3dc;         /* hairline 1px */
+  /* Superfícies */
+  --color-paper: #f7f3ee;        /* fundo base (creme) */
+  --color-surface: #efe8de;      /* seção/painel rebaixado */
+  --color-elevated: #fffdf9;     /* cartões */
+  --color-line: #e2dace;         /* borda (hairline quente) */
 
   /* Texto */
-  --color-ink: #1a1a1a;          /* primário */
-  --color-stone: #6b6b66;        /* secundário */
-  --color-mute: #9a9a92;         /* terciário/muted */
+  --color-ink: #1f1b1a;          /* primário (quase-preto) */
+  --color-stone: #5a524c;        /* secundário (~7:1 no creme) */
+  --color-mute: #8a8077;         /* terciário */
 
-  /* Acento único: terracota */
-  --color-accent: #8b2a1f;
-  --color-accent-soft: #c4998e;
+  /* Marca: bordô / vinho */
+  --color-accent: #6e1423;       /* bordô — eyebrows, links, botões, faixas */
+  --color-accent-soft: #561019;  /* vinho mais escuro — hover */
+
+  /* Dourado quente (só sobre faixas bordô — burgundy + gold) */
+  --color-gold: #b8893c;         /* dourado sobre claro */
+  --color-gold-soft: #9a6b1f;    /* hover */
+  --color-gold-light: #d9a441;   /* dourado legível sobre o bordô */
 
   /* Semânticos */
-  --color-success: #3d5440;
-  --color-warning: #b8861b;
-  --color-danger: #8b2a1f;
+  --color-success: #3d6b48;
+  --color-warning: #9a6b1f;
+  --color-danger: #b3261e;
 
   /* Tipografia */
-  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
-  --font-sans: "Geist", system-ui, -apple-system, sans-serif;
+  --font-display: "EB Garamond", Georgia, "Times New Roman", serif;
+  --font-sans: "Lato", system-ui, -apple-system, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, "SF Mono", monospace;
 
-  /* Raios — propositalmente apertados (nunca >= 8px) */
-  --radius-button: 2px;
-  --radius-input: 4px;
+  /* Raios padrão profissionais */
+  --radius-button: 6px;
+  --radius-input: 6px;
+  --radius-card: 10px;
 
-  /* Timing único do sistema */
+  /* Sombras sutis (Trust & Authority usa elevação leve, não hairline puro) */
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 6px 16px -6px rgba(15, 23, 42, 0.1);
+  --shadow-card-hover: 0 2px 4px rgba(15, 23, 42, 0.06), 0 12px 28px -8px rgba(15, 23, 42, 0.16);
+
+  /* Timing único */
   --ease-editorial: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* ── Dark mode ───────────────────────────────────────────────────────────── */
-[data-theme="dark"] {
-  --color-paper: #14130f;
-  --color-surface: #1e1d18;
-  --color-elevated: #2a2924;
-  --color-line: #3a3933;
-
-  --color-ink: #f2f1ec;
-  --color-stone: #a8a7a0;
-  --color-mute: #6b6b66;
-
-  --color-accent: #b84a3d;
-  --color-accent-soft: #8b5a50;
-
-  --color-success: #7a9b7e;
-  --color-warning: #d4a843;
-  --color-danger: #b84a3d;
 }
 
 /* ── Base ────────────────────────────────────────────────────────────────── */
 @layer base {
   html {
     scroll-behavior: smooth;
-    /* Fraunces fica mais editorial com optical-sizing automático */
-    font-optical-sizing: auto;
   }
 
   body {
     background-color: var(--color-paper);
     color: var(--color-ink);
     font-family: var(--font-sans);
-    font-feature-settings: "cv01", "cv03";
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
 
-  /* Display em Fraunces com alternativas estilísticas */
+  /* Display em EB Garamond */
   h1,
   h2,
   .font-display {
     font-family: var(--font-display);
-    font-feature-settings: "ss01", "ss02";
-    letter-spacing: -0.015em;
+    letter-spacing: -0.01em;
   }
 
-  /* Dados numéricos sempre tabulares quando em mono */
+  /* Dados numéricos tabulares quando em mono */
   .font-mono,
   [class*="font-mono"] {
     font-variant-numeric: tabular-nums;
@@ -94,69 +82,25 @@
   :focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
-    border-radius: 2px;
+    border-radius: 4px;
   }
 
   ::selection {
-    background-color: color-mix(in srgb, var(--color-accent) 18%, transparent);
+    background-color: color-mix(in srgb, var(--color-accent) 16%, transparent);
     color: var(--color-ink);
   }
 }
 
-/* ── Utilitários de marca ────────────────────────────────────────────────── */
+/* ── Utilitários ─────────────────────────────────────────────────────────── */
 @layer utilities {
-  /* Numeral tabular explícito para blocos de métricas */
   .tabular {
     font-variant-numeric: tabular-nums;
   }
 
-  /* Hairline-rule editorial reutilizável */
-  .rule-accent {
-    border-color: var(--color-accent);
-  }
-
-  /* Itálico de Fraunces para ênfase/pull-quotes (eixo carregado no <link>) */
+  /* Itálico de EB Garamond para ênfase tipográfica. */
   .italic-display {
     font-family: var(--font-display);
     font-style: italic;
-    font-feature-settings: "ss01";
-  }
-
-  /* Régua-grid sutil de papel pautado — textura impressa, não decoração de IA.
-     Linhas verticais finas + base horizontal, ancoradas na cor da hairline. */
-  .paper-grid {
-    background-image:
-      linear-gradient(to right, var(--color-line) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--color-line) 1px, transparent 1px);
-    background-size: 64px 64px;
-    background-position: -1px -1px;
-    -webkit-mask-image: radial-gradient(120% 90% at 80% 0%, #000 35%, transparent 78%);
-    mask-image: radial-gradient(120% 90% at 80% 0%, #000 35%, transparent 78%);
-  }
-
-  /* Capitular editorial: primeira letra grande em Fraunces, no acento. */
-  .dropcap::first-letter {
-    font-family: var(--font-display);
-    font-weight: 500;
-    font-size: 3.4em;
-    line-height: 0.78;
-    float: left;
-    margin: 0.08em 0.08em 0 0;
-    color: var(--color-accent);
-  }
-
-  /* Canto chanfrado — assinatura do "selo cortado" aplicada a botões sólidos. */
-  .cut-corner {
-    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%);
-  }
-
-  /* Numeral-fantasma gigante para seções (marca de revista). */
-  .ghost-numeral {
-    font-family: var(--font-mono);
-    font-variant-numeric: tabular-nums;
-    line-height: 1;
-    color: var(--color-line);
-    user-select: none;
   }
 }
 

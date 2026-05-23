@@ -44,14 +44,14 @@ export function WhatWeDetect() {
     <section id="sobre" className="border-b border-line">
       <Container className="py-20 md:py-28">
         <div className="max-w-[62ch]">
-          <span className="font-mono text-[12px] uppercase tracking-[0.16em] text-accent">
+          <span className="font-sans text-[12px] font-bold uppercase tracking-[0.16em] text-accent">
             O que detectamos
           </span>
-          <h2 className="mt-5 font-display text-[clamp(2.25rem,4.5vw,3.25rem)] font-medium leading-[1.02] tracking-tight text-ink">
+          <h2 className="mt-4 font-display text-[clamp(2.25rem,4.5vw,3.25rem)] font-medium leading-[1.04] tracking-[-0.01em] text-ink">
             Os contratos que você assina no{" "}
-            <span className="italic-display">piloto automático.</span>
+            <span className="italic-display text-accent">piloto automático.</span>
           </h2>
-          <p className="dropcap mt-7 max-w-[58ch] text-[17px] leading-relaxed text-stone">
+          <p className="mt-6 max-w-[58ch] text-[18px] leading-[1.6] text-stone">
             Letra miúda existe para não ser lida. A gente lê — e confronta cada
             cláusula com a lei que deveria proteger você. Veja onde costumam se
             esconder as armadilhas.

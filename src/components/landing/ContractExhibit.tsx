@@ -5,13 +5,13 @@
  */
 export function ContractExhibit() {
   return (
-    <figure className="border border-ink bg-elevated shadow-[6px_6px_0_0_var(--color-ink)]">
-      {/* Masthead em tinta — âncora de contraste do hero */}
-      <figcaption className="flex items-center justify-between bg-ink px-5 py-3 text-paper">
+    <figure className="overflow-hidden rounded-[var(--radius-card)] border border-line bg-elevated shadow-[var(--shadow-card)]">
+      {/* Masthead navy — autoridade do documento */}
+      <figcaption className="flex items-center justify-between bg-accent px-5 py-3 text-white">
         <span className="font-mono text-[11px] uppercase tracking-[0.14em]">
           Contrato de prestação de serviços
         </span>
-        <span className="font-mono text-[11px] tabular text-paper/60">fl. 03</span>
+        <span className="font-mono text-[11px] tabular text-white/60">fl. 03</span>
       </figcaption>
 
       <div className="space-y-5 px-5 py-6 font-mono text-[12.5px] leading-relaxed text-ink">
@@ -48,7 +48,7 @@ export function ContractExhibit() {
       </div>
 
       {/* Rodapé: veredito */}
-      <div className="flex items-center justify-between border-t border-line px-5 py-3">
+      <div className="flex items-center justify-between border-t border-line bg-surface px-5 py-3">
         <span className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.12em] text-accent">
           <span className="h-1.5 w-1.5 rounded-full bg-accent" />
           2 cláusulas abusivas
@@ -76,7 +76,7 @@ function Clause({
   )
 }
 
-/** Linha riscada no acento — a cláusula marcada para revisão. */
+/** Linha riscada — cláusula marcada para revisão. */
 function Strike({ children }: { children: React.ReactNode }) {
   return (
     <span className="bg-accent/[0.06] decoration-accent decoration-[1.5px] [text-decoration-line:line-through]">

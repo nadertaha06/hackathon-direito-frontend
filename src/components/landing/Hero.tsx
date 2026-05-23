@@ -4,19 +4,15 @@ import { Container } from "@/components/ui/container"
 import { ContractExhibit } from "./ContractExhibit"
 
 /**
- * Hero assimétrico: coluna de texto à esquerda (medida ≤ 60ch), exhibit
- * tipográfico à direita. Régua-grid de papel ao fundo + ênfase em itálico
- * de Fraunces no acento — drama editorial, sem ilustração nem fx.
+ * Hero assimétrico: coluna de texto à esquerda (≤ 60ch), exhibit do contrato à
+ * direita. Navy + dourado, EB Garamond no título.
  */
 export function Hero() {
   const navigate = useNavigate()
 
   return (
-    <section className="relative overflow-hidden border-b border-line">
-      {/* Textura de papel pautado, sutil, atrás de tudo */}
-      <div aria-hidden className="paper-grid pointer-events-none absolute inset-0" />
-
-      <Container className="relative">
+    <section className="border-b border-line">
+      <Container>
         {/* Fólio superior — marca de documento */}
         <div className="flex items-center justify-between border-b border-line py-3 font-mono text-[11px] uppercase tracking-[0.16em] text-mute">
           <span>Dossiê do consumidor</span>
@@ -26,32 +22,32 @@ export function Hero() {
         <div className="grid items-center gap-x-16 gap-y-14 py-16 md:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] md:py-24">
           {/* Coluna editorial */}
           <div className="max-w-[60ch]">
-            <p className="flex items-center gap-3 font-mono text-[12px] uppercase tracking-[0.16em] text-accent">
+            <p className="flex items-center gap-3 font-sans text-[12px] font-bold uppercase tracking-[0.16em] text-accent">
               <span className="h-px w-8 bg-accent" />
               Direito do consumidor
             </p>
 
-            <h1 className="mt-7 font-display text-[clamp(3rem,6.5vw,5rem)] font-medium leading-[0.98] tracking-[-0.025em] text-ink">
+            <h1 className="mt-7 font-display text-[clamp(3rem,6.5vw,4.75rem)] font-medium leading-[1.04] tracking-[-0.01em] text-ink">
               Sua próxima assinatura,{" "}
               <span className="italic-display text-accent">sob revisão.</span>
             </h1>
 
-            <p className="mt-8 max-w-[50ch] text-[19px] leading-relaxed text-stone">
+            <p className="mt-7 max-w-[52ch] text-[19px] leading-[1.6] text-stone">
               Cole o contrato — academia, plano de saúde, financiamento. Devolvemos
               cada cláusula abusiva marcada e o dispositivo legal que a sustenta.
             </p>
 
-            <div className="mt-10 flex flex-wrap items-center gap-3">
+            <div className="mt-9 flex flex-wrap items-center gap-4">
               <Button size="lg" onClick={() => navigate("/cadastro")}>
                 Analisar um contrato
                 <ButtonArrow />
               </Button>
-              <Button size="lg" variant="secondary" onClick={() => navigate("/login")}>
+              <Button variant="secondary" size="lg" onClick={() => navigate("/login")}>
                 Já tenho conta
               </Button>
             </div>
 
-            <p className="mt-8 font-mono text-[12px] text-mute">
+            <p className="mt-7 text-[13px] text-mute">
               Sem cartão. Primeira análise gratuita.
             </p>
           </div>
