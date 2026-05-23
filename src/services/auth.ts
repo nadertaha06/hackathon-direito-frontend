@@ -1,6 +1,7 @@
 import { apiRequest } from "./api"
 
 const TOKEN_KEY = "cj_token"
+const EMAIL_KEY = "cj_email"
 
 export interface Credentials {
   email: string
@@ -20,7 +21,15 @@ interface LoginResponse {
 export const tokenStore = {
   get: () => localStorage.getItem(TOKEN_KEY),
   set: (token: string) => localStorage.setItem(TOKEN_KEY, token),
-  clear: () => localStorage.removeItem(TOKEN_KEY),
+  clear: () => {
+    localStorage.removeItem(TOKEN_KEY)
+    localStorage.removeItem(EMAIL_KEY)
+  },
+}
+
+export const emailStore = {
+  get: () => localStorage.getItem(EMAIL_KEY),
+  set: (email: string) => localStorage.setItem(EMAIL_KEY, email),
 }
 
 export async function login(credentials: Credentials): Promise<string> {
@@ -29,6 +38,7 @@ export async function login(credentials: Credentials): Promise<string> {
     body: credentials,
   })
   tokenStore.set(data.access_token)
+  emailStore.set(credentials.email)
   return data.access_token
 }
 
