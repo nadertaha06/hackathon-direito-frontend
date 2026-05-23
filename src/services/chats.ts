@@ -3,6 +3,7 @@ import { tokenStore } from "./auth"
 import { config } from "@/config/config"
 import type {
   AnaliseResponse,
+  ChatListItem,
   ChatResponse,
   MessageResponse,
 } from "@/types/domain"
@@ -16,17 +17,21 @@ function requireToken(): string {
   return token
 }
 
-export async function listChats(includeDeleted = false): Promise<ChatResponse[]> {
-  return apiRequest<ChatResponse[]>(
-    `/chats?incluir_deletados=${includeDeleted}`,
+export async function listChats(includeDeleted = false): Promise<ChatListItem[]> {
+  return apiRequest<ChatListItem[]>(
+    `/chats?incluir_deletados=${includeDeleted}&limit=100`,
     { token: requireToken() },
   )
 }
 
-export async function createStandaloneChat(titulo?: string): Promise<ChatResponse> {
+/**
+ * Cria um chat standalone. O back espera body vazio `{}` (CriarChatRequest)
+ * — título é gerado depois automaticamente. Não há endpoint de rename.
+ */
+export async function createStandaloneChat(): Promise<ChatResponse> {
   return apiRequest<ChatResponse>("/chats", {
     method: "POST",
-    body: { titulo },
+    body: {},
     token: requireToken(),
   })
 }
@@ -38,28 +43,21 @@ export async function deleteChat(id: string): Promise<void> {
   })
 }
 
-export async function renameChat(id: string, titulo: string): Promise<ChatResponse> {
-  return apiRequest<ChatResponse>(`/chats/${id}`, {
-    method: "PATCH",
-    body: { titulo },
-    token: requireToken(),
-  })
-}
-
 export async function getMessages(chatId: string): Promise<MessageResponse[]> {
-  return apiRequest<MessageResponse[]>(`/chats/${chatId}/messages`, {
+  return apiRequest<MessageResponse[]>(`/chats/${chatId}/messages?limit=200`, {
     token: requireToken(),
   })
 }
 
 /**
- * Upload de PDF pro endpoint /analisar (multipart). Não usa apiRequest porque
- * o wrapper força JSON. Erro 422 carrega o `detail` do FastAPI.
+ * Upload de PDF pro endpoint /analisar (multipart, campo `arquivo`).
+ * Não usa apiRequest porque o wrapper força JSON. Erro 422 carrega `detail`
+ * com motivo de "não é contrato de consumo".
  */
 export async function analisarPdf(file: File): Promise<AnaliseResponse> {
   const token = requireToken()
   const fd = new FormData()
-  fd.append("file", file)
+  fd.append("arquivo", file)
 
   let response: Response
   try {
@@ -99,10 +97,12 @@ function extractDetail(data: unknown): string | null {
 }
 
 /**
- * Stream SSE — protocolo: linhas `data: <token>` separadas por `\n\n`.
- * Aceita também eventos JSON `data: {"delta": "..."}` se o server emitir.
- * Chama `onToken` para cada chunk de texto, `onDone` ao fim, `onError` em falha.
- * Retorna função pra cancelar (abort fetch).
+ * Stream SSE — protocolo do back: linhas `data: <json>\n\n` onde json é
+ * `{type:"text",content:"..."}` por chunk, `{type:"done",uso:{...}}` ao final
+ * ou `{type:"error",code:"..."}` em falha no meio. Callbacks são acionados:
+ * onToken pra cada chunk de texto, onDone ao fim natural, onError em erro
+ * (de rede, HTTP, evento error do stream, ou JSON inválido). Retorna função
+ * de cancelamento.
  */
 export interface StreamCallbacks {
   onToken: (token: string) => void
@@ -117,6 +117,7 @@ interface StreamOptions extends StreamCallbacks {
 function streamRequest(path: string, opts: StreamOptions): () => void {
   const token = requireToken()
   const controller = new AbortController()
+  let streamErrored = false
 
   void (async () => {
     let res: Response
@@ -155,24 +156,35 @@ function streamRequest(path: string, opts: StreamOptions): () => void {
     const decoder = new TextDecoder()
     let buffer = ""
 
+    const handle = (raw: string) => {
+      const ev = parseEvent(raw)
+      if (!ev) return
+      if (ev.type === "text" && typeof ev.content === "string") {
+        opts.onToken(ev.content)
+      } else if (ev.type === "error") {
+        streamErrored = true
+        const code = (ev.code as string | undefined) ?? "stream_error"
+        opts.onError(new ApiError(`Falha no stream (${code}).`, 0, ev))
+      }
+      // type:"done" — ignora; o onDone é chamado quando o reader fecha.
+    }
+
     try {
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
         buffer += decoder.decode(value, { stream: true })
 
-        // Eventos SSE separados por linha em branco.
         let sep = buffer.indexOf("\n\n")
         while (sep !== -1) {
           const rawEvent = buffer.slice(0, sep)
           buffer = buffer.slice(sep + 2)
-          processEvent(rawEvent, opts.onToken)
+          handle(rawEvent)
           sep = buffer.indexOf("\n\n")
         }
       }
-      // Flush trailing event (sem \n\n final)
-      if (buffer.trim()) processEvent(buffer, opts.onToken)
-      opts.onDone()
+      if (buffer.trim()) handle(buffer)
+      if (!streamErrored) opts.onDone()
     } catch (err) {
       if ((err as Error).name === "AbortError") return
       opts.onError(err as Error)
@@ -182,8 +194,8 @@ function streamRequest(path: string, opts: StreamOptions): () => void {
   return () => controller.abort()
 }
 
-function processEvent(raw: string, onToken: (t: string) => void): void {
-  // Coleta todas as linhas `data:` do evento (SSE permite múltiplas).
+/** Junta linhas `data:` de um evento SSE e tenta parsear como JSON. */
+function parseEvent(raw: string): Record<string, unknown> | null {
   const lines = raw.split("\n")
   const dataLines: string[] = []
   for (const line of lines) {
@@ -191,36 +203,29 @@ function processEvent(raw: string, onToken: (t: string) => void): void {
       dataLines.push(line.slice(5).replace(/^ /, ""))
     }
   }
-  if (dataLines.length === 0) return
+  if (dataLines.length === 0) return null
   const payload = dataLines.join("\n")
-  if (payload === "[DONE]") return
-
-  // Tenta JSON {"delta": "..."} ou {"content": "..."}; caso contrário, texto cru.
-  if (payload.startsWith("{")) {
-    try {
-      const obj = JSON.parse(payload) as Record<string, unknown>
-      const token =
-        (typeof obj.delta === "string" && obj.delta) ||
-        (typeof obj.content === "string" && obj.content) ||
-        (typeof obj.token === "string" && obj.token) ||
-        ""
-      if (token) onToken(token)
-      return
-    } catch {
-      // não era JSON válido — cai pro texto cru
-    }
+  if (payload === "[DONE]") return { type: "done" }
+  try {
+    return JSON.parse(payload) as Record<string, unknown>
+  } catch {
+    // Back não envia texto puro — mas se vier, trata como token.
+    return { type: "text", content: payload }
   }
-  onToken(payload)
 }
 
 export function streamSendMessage(
   chatId: string,
-  content: string,
+  conteudo: string,
   callbacks: StreamCallbacks,
+  replyingTo?: string,
 ): () => void {
   return streamRequest(`/chats/${chatId}/messages/stream`, {
     ...callbacks,
-    body: { content },
+    body: {
+      conteudo,
+      ...(replyingTo ? { replying_to_message_id: replyingTo } : {}),
+    },
   })
 }
 

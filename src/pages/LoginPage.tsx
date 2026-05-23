@@ -12,7 +12,7 @@ import { handleApiError } from "@/lib/handleApiError"
 export function LoginPage() {
   const navigate = useNavigate()
   const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [senha, setSenha] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
@@ -22,8 +22,8 @@ export function LoginPage() {
     setError("")
     setLoading(true)
     try {
-      await login({ email, password })
-      navigate("/dashboard")
+      await login({ email, senha })
+      navigate("/app")
     } catch (err) {
       // 401 genérico: não enumera se o problema foi email ou senha.
       setError(handleApiError(err, { 401: "Email ou senha inválidos." }))
@@ -87,8 +87,8 @@ export function LoginPage() {
                 )}
               </button>
             }
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
             aria-invalid={Boolean(error)}
           />
         </div>

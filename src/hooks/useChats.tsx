@@ -4,30 +4,28 @@ import {
   createStandaloneChat,
   deleteChat,
   listChats,
-  renameChat,
 } from "@/services/chats"
 import { handleAuthError } from "@/lib/handleAuthError"
-import type { ChatResponse } from "@/types/domain"
+import type { ChatListItem, ChatResponse } from "@/types/domain"
 
 interface ChatsContextValue {
-  chats: ChatResponse[]
-  archived: ChatResponse[]
+  chats: ChatListItem[]
+  archived: ChatListItem[]
   loading: boolean
   error: string | null
   refresh: () => Promise<void>
   refreshArchived: () => Promise<void>
   createStandalone: () => Promise<ChatResponse | null>
-  rename: (id: string, title: string) => Promise<void>
   remove: (id: string) => Promise<void>
-  /** Inserts a chat optimistically (used after /analisar returns). */
-  upsertLocal: (chat: ChatResponse) => void
+  /** Insere/atualiza um chat local (usado após /analisar retornar). */
+  upsertLocal: (chat: ChatListItem) => void
 }
 
 const ChatsContext = createContext<ChatsContextValue | null>(null)
 
 export function ChatsProvider({ children }: { children: ReactNode }) {
-  const [chats, setChats] = useState<ChatResponse[]>([])
-  const [archived, setArchived] = useState<ChatResponse[]>([])
+  const [chats, setChats] = useState<ChatListItem[]>([])
+  const [archived, setArchived] = useState<ChatListItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -48,7 +46,6 @@ export function ChatsProvider({ children }: { children: ReactNode }) {
   const refreshArchived = useCallback(async () => {
     try {
       const data = await listChats(true)
-      // Filtra só os deletados (lista completa contém ativos também).
       setArchived(sortChats(data.filter((c) => c.deletado_em !== null)))
     } catch (err) {
       handleAuthError(err)
@@ -58,7 +55,16 @@ export function ChatsProvider({ children }: { children: ReactNode }) {
   const createStandalone = useCallback(async (): Promise<ChatResponse | null> => {
     try {
       const chat = await createStandaloneChat()
-      setChats((prev) => sortChats([chat, ...prev]))
+      const item: ChatListItem = {
+        id: chat.id,
+        analise_id: chat.analise_id,
+        titulo: chat.titulo,
+        criado_em: chat.criado_em,
+        atualizado_em: chat.atualizado_em,
+        deletado_em: null,
+        ultima_mensagem_preview: null,
+      }
+      setChats((prev) => sortChats([item, ...prev]))
       return chat
     } catch (err) {
       const msg = handleAuthError(err)
@@ -67,23 +73,8 @@ export function ChatsProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const rename = useCallback(async (id: string, title: string): Promise<void> => {
-    // Otimista — reverte em erro.
-    let snapshot: ChatResponse[] = []
-    setChats((prev) => {
-      snapshot = prev
-      return prev.map((c) => (c.id === id ? { ...c, titulo: title } : c))
-    })
-    try {
-      await renameChat(id, title)
-    } catch (err) {
-      setChats(snapshot)
-      handleAuthError(err)
-    }
-  }, [])
-
   const remove = useCallback(async (id: string): Promise<void> => {
-    let snapshot: ChatResponse[] = []
+    let snapshot: ChatListItem[] = []
     setChats((prev) => {
       snapshot = prev
       return prev.filter((c) => c.id !== id)
@@ -96,7 +87,7 @@ export function ChatsProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const upsertLocal = useCallback((chat: ChatResponse): void => {
+  const upsertLocal = useCallback((chat: ChatListItem): void => {
     setChats((prev) => {
       const exists = prev.some((c) => c.id === chat.id)
       const next = exists
@@ -120,7 +111,6 @@ export function ChatsProvider({ children }: { children: ReactNode }) {
         refresh,
         refreshArchived,
         createStandalone,
-        rename,
         remove,
         upsertLocal,
       }}
@@ -136,7 +126,7 @@ export function useChats(): ChatsContextValue {
   return ctx
 }
 
-function sortChats(chats: ChatResponse[]): ChatResponse[] {
+function sortChats(chats: ChatListItem[]): ChatListItem[] {
   return [...chats].sort(
     (a, b) =>
       new Date(b.atualizado_em).getTime() - new Date(a.atualizado_em).getTime(),

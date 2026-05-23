@@ -16,20 +16,20 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 export function CadastroPage() {
   const navigate = useNavigate()
   const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [senha, setSenha] = useState("")
   const [confirm, setConfirm] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
-  const passwordLongEnough = password.length >= MIN_PASSWORD
-  const passwordsMatch = confirm.length > 0 && password === confirm
+  const passwordLongEnough = senha.length >= MIN_PASSWORD
+  const passwordsMatch = confirm.length > 0 && senha === confirm
 
   function validate(): string | null {
     if (!EMAIL_RE.test(email)) return "Digite um email válido."
     if (!passwordLongEnough)
       return `A senha precisa ter pelo menos ${MIN_PASSWORD} caracteres.`
-    if (password !== confirm) return "As senhas não conferem."
+    if (senha !== confirm) return "As senhas não conferem."
     return null
   }
 
@@ -43,9 +43,8 @@ export function CadastroPage() {
     setError("")
     setLoading(true)
     try {
-      // Cadastro + login automático com as mesmas credenciais.
-      await registerAndLogin({ email, password })
-      navigate("/dashboard")
+      await registerAndLogin({ email, senha })
+      navigate("/app")
     } catch (err) {
       setError(
         handleApiError(err, {
@@ -113,8 +112,8 @@ export function CadastroPage() {
             required
             icon={<Lock strokeWidth={1.5} />}
             trailing={toggle}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
             aria-describedby="password-hint"
           />
           <p

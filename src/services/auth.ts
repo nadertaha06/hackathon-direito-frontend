@@ -5,7 +5,7 @@ const EMAIL_KEY = "cj_email"
 
 export interface Credentials {
   email: string
-  password: string
+  senha: string
 }
 
 interface LoginResponse {

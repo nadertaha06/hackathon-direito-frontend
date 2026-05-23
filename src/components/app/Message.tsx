@@ -5,9 +5,7 @@ import { Markdown } from "./Markdown"
 import type { MessageResponse } from "@/types/domain"
 
 export interface MessageItem extends MessageResponse {
-  /** Mensagem em construção via stream (mostra cursor pulsante). */
   streaming?: boolean
-  /** Falha ocorrida durante streaming — exibe alerta + retry. */
   failed?: boolean
 }
 
@@ -38,16 +36,17 @@ export function Message({ message, onRegenerate, onRetry }: MessageProps) {
 }
 
 function UserBubble({ content }: { content: string }) {
+  const lines = content.split("\n")
   return (
     <div className="my-6 flex justify-end">
       <div
         className="max-w-[70%] border border-line bg-surface px-4 py-2.5 text-[14.5px] leading-relaxed text-ink"
         style={{ borderRadius: 4 }}
       >
-        {content.split("\n").map((l, i) => (
+        {lines.map((l, i) => (
           <span key={i}>
             {l}
-            {i < content.split("\n").length - 1 && <br />}
+            {i < lines.length - 1 && <br />}
           </span>
         ))}
       </div>
@@ -65,7 +64,6 @@ function AssistantBubble({
   onRetry?: () => void
 }) {
   const [copied, setCopied] = useState(false)
-
   const canRegenerate = !message.streaming && !message.failed && Boolean(onRegenerate)
 
   async function copy() {
@@ -74,7 +72,7 @@ function AssistantBubble({
       setCopied(true)
       setTimeout(() => setCopied(false), 1500)
     } catch {
-      /* clipboard pode falhar silenciosamente em http inseguro */
+      /* clipboard indisponível em contextos não-https — silencioso */
     }
   }
 
@@ -93,7 +91,10 @@ function AssistantBubble({
         </div>
 
         {message.failed && (
-          <div className="mt-3 flex items-center gap-2 border border-danger/40 bg-paper px-3 py-2" style={{ borderRadius: 4 }}>
+          <div
+            className="mt-3 flex items-center gap-2 border border-danger/40 bg-paper px-3 py-2"
+            style={{ borderRadius: 4 }}
+          >
             <AlertTriangle className="h-3.5 w-3.5 text-danger" strokeWidth={1.5} />
             <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-danger">
               Resposta interrompida

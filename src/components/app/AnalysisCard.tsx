@@ -1,10 +1,12 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { ChevronDown, ChevronRight } from "lucide-react"
 import type {
   AnaliseClausula,
   AnalisePayload,
-  GravidadeClausula,
+  ClausulaExtraida,
+  GravidadeAbusividade,
   ScoreRisco,
+  TipoContrato,
 } from "@/types/domain"
 
 interface AnalysisCardProps {
@@ -12,39 +14,84 @@ interface AnalysisCardProps {
 }
 
 export function AnalysisCard({ payload }: AnalysisCardProps) {
+  // Indexa cláusulas extraídas por índice pra anexar o título nas análises.
+  const indexClausulas = useMemo(() => {
+    const map = new Map<number, ClausulaExtraida>()
+    for (const c of payload.clausulas_extraidas ?? []) map.set(c.indice, c)
+    return map
+  }, [payload.clausulas_extraidas])
+
   return (
     <article className="w-full border border-line bg-paper">
       <Header score={payload.score_risco} tipoContrato={payload.tipo_contrato} />
 
-      <section className="border-t border-line px-6 py-7 md:px-10">
-        <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-mute">
-          Resumo executivo
-        </p>
-        <p className="mt-4 font-display text-[clamp(1.1rem,1.5vw,1.25rem)] italic leading-[1.5] text-ink">
-          {payload.resumo_executivo}
-        </p>
-      </section>
+      {payload.resumo_executivo && (
+        <section className="border-t border-line px-6 py-7 md:px-10">
+          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-mute">
+            Resumo executivo
+          </p>
+          <p className="mt-4 font-display text-[clamp(1.1rem,1.5vw,1.25rem)] italic leading-[1.5] text-ink">
+            {payload.resumo_executivo}
+          </p>
+        </section>
+      )}
 
-      <ClausesList analyses={payload.analises_clausulas} />
+      <ClausesList
+        analyses={payload.analises_clausulas ?? []}
+        clausulas={indexClausulas}
+      />
 
-      {payload.pontos_negociacao.length > 0 && (
+      {(payload.pontos_negociacao ?? []).length > 0 && (
         <NegotiationPoints points={payload.pontos_negociacao} />
       )}
     </article>
   )
 }
 
-const SCORE_META: Record<
-  ScoreRisco,
-  { dot: string; label: string; ring: string }
-> = {
-  ALTO: { dot: "bg-danger", label: "Alto risco", ring: "text-danger" },
-  MODERADO: { dot: "bg-warning", label: "Risco moderado", ring: "text-warning" },
-  BAIXO: { dot: "bg-success", label: "Baixo risco", ring: "text-success" },
+// ── Score (verde/amarelo/vermelho) ─────────────────────────────────────────
+type ScoreMeta = { dot: string; label: string; ring: string }
+
+const SCORE_META: Record<ScoreRisco, ScoreMeta> = {
+  verde: { dot: "bg-success", label: "Baixo risco", ring: "text-success" },
+  amarelo: { dot: "bg-warning", label: "Risco moderado", ring: "text-warning" },
+  vermelho: { dot: "bg-danger", label: "Alto risco", ring: "text-danger" },
 }
 
-function Header({ score, tipoContrato }: { score: ScoreRisco; tipoContrato: string }) {
-  const meta = SCORE_META[score]
+const SCORE_FALLBACK: ScoreMeta = {
+  dot: "bg-stone",
+  label: "Risco indeterminado",
+  ring: "text-stone",
+}
+
+function resolveScore(score: ScoreRisco | string | null | undefined): ScoreMeta {
+  if (!score) return SCORE_FALLBACK
+  const key = String(score).toLowerCase().trim() as ScoreRisco
+  return SCORE_META[key] ?? SCORE_FALLBACK
+}
+
+// ── Tipo de contrato (nome humanizado) ─────────────────────────────────────
+const TIPO_CONTRATO_LABEL: Record<TipoContrato, string> = {
+  academia: "Academia",
+  plano_saude: "Plano de saúde",
+  financiamento: "Financiamento",
+  telecom: "Telecom",
+  ecommerce: "E-commerce",
+  geral: "Contrato geral",
+  nao_aplicavel: "Documento avulso",
+}
+
+function labelTipo(tipo: TipoContrato | string): string {
+  return TIPO_CONTRATO_LABEL[tipo as TipoContrato] ?? String(tipo)
+}
+
+function Header({
+  score,
+  tipoContrato,
+}: {
+  score: ScoreRisco
+  tipoContrato: TipoContrato
+}) {
+  const meta = resolveScore(score)
   return (
     <header className="flex flex-col gap-4 px-6 py-6 md:flex-row md:items-center md:justify-between md:px-10">
       <div className="flex items-center gap-3">
@@ -54,7 +101,7 @@ function Header({ score, tipoContrato }: { score: ScoreRisco; tipoContrato: stri
             {meta.label}
           </p>
           <h2 className="mt-1 font-display text-[clamp(1.5rem,2.5vw,1.875rem)] font-medium leading-tight tracking-[-0.01em] text-ink">
-            Análise: <span className="italic">{tipoContrato}</span>
+            Análise: <span className="italic">{labelTipo(tipoContrato)}</span>
           </h2>
         </div>
       </div>
@@ -65,7 +112,7 @@ function Header({ score, tipoContrato }: { score: ScoreRisco; tipoContrato: stri
 }
 
 function ScoreDot({ score }: { score: ScoreRisco }) {
-  const meta = SCORE_META[score]
+  const meta = resolveScore(score)
   return (
     <span
       aria-hidden
@@ -76,7 +123,7 @@ function ScoreDot({ score }: { score: ScoreRisco }) {
 }
 
 export function ScoreBadge({ score }: { score: ScoreRisco }) {
-  const meta = SCORE_META[score]
+  const meta = resolveScore(score)
   return (
     <span
       className={`inline-flex items-center gap-2 border border-line px-3 py-1.5 ${meta.ring}`}
@@ -93,7 +140,38 @@ export function ScoreBadge({ score }: { score: ScoreRisco }) {
   )
 }
 
-function ClausesList({ analyses }: { analyses: AnaliseClausula[] }) {
+// ── Cláusulas ──────────────────────────────────────────────────────────────
+type GravidadeMeta = { label: string; tone: string }
+
+const GRAVIDADE_META: Record<GravidadeAbusividade, GravidadeMeta> = {
+  abusiva: { label: "Abusiva", tone: "text-danger border-danger/30" },
+  potencialmente_abusiva: {
+    label: "Potencialmente abusiva",
+    tone: "text-warning border-warning/30",
+  },
+  nao_abusiva: { label: "Não abusiva", tone: "text-success border-success/30" },
+}
+
+const GRAVIDADE_FALLBACK: GravidadeMeta = {
+  label: "Não classificada",
+  tone: "text-stone border-line",
+}
+
+function resolveGravidade(
+  g: GravidadeAbusividade | string | null | undefined,
+): GravidadeMeta {
+  if (!g) return GRAVIDADE_FALLBACK
+  const key = String(g).toLowerCase().trim() as GravidadeAbusividade
+  return GRAVIDADE_META[key] ?? GRAVIDADE_FALLBACK
+}
+
+function ClausesList({
+  analyses,
+  clausulas,
+}: {
+  analyses: AnaliseClausula[]
+  clausulas: Map<number, ClausulaExtraida>
+}) {
   if (analyses.length === 0) return null
   return (
     <section className="border-t border-line px-6 py-7 md:px-10">
@@ -107,39 +185,46 @@ function ClausesList({ analyses }: { analyses: AnaliseClausula[] }) {
       </header>
 
       <ol className="divide-y divide-line">
-        {analyses.map((c) => (
-          <ClauseItem key={c.numero} clause={c} />
+        {analyses.map((a) => (
+          <ClauseItem
+            key={a.clausula_indice}
+            analysis={a}
+            clausula={clausulas.get(a.clausula_indice)}
+          />
         ))}
       </ol>
     </section>
   )
 }
 
-const GRAVIDADE_META: Record<GravidadeClausula, { label: string; tone: string }> = {
-  ABUSIVA: { label: "Abusiva", tone: "text-danger border-danger/30" },
-  POTENCIALMENTE_ABUSIVA: {
-    label: "Potencialmente abusiva",
-    tone: "text-warning border-warning/30",
-  },
-  NAO_ABUSIVA: { label: "Não abusiva", tone: "text-success border-success/30" },
-}
-
-function ClauseItem({ clause }: { clause: AnaliseClausula }) {
+function ClauseItem({
+  analysis,
+  clausula,
+}: {
+  analysis: AnaliseClausula
+  clausula?: ClausulaExtraida
+}) {
   const [open, setOpen] = useState(false)
-  const meta = GRAVIDADE_META[clause.gravidade]
-  const hasGrounds = clause.dispositivos.length > 0
+  const meta = resolveGravidade(analysis.gravidade)
+  const fundamentos = analysis.fundamentos_usados ?? []
+  const hasGrounds = fundamentos.length > 0
+  // Índice começa em 0 no back — exibimos 1-based.
+  const numero = analysis.clausula_indice + 1
+  const titulo = clausula?.titulo_curto ?? `Cláusula ${numero}`
+  const explicacao = analysis.explicacao
+  const trecho = clausula?.texto_resumido
 
   return (
     <li className="py-5">
       <div className="grid grid-cols-[3rem_1fr] gap-x-4">
         <span className="pt-0.5 font-mono text-[12px] tabular-nums text-mute">
-          {String(clause.numero).padStart(2, "0")}
+          {String(numero).padStart(2, "0")}
         </span>
 
         <div className="min-w-0">
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
             <h3 className="font-display text-[17px] font-medium leading-snug tracking-[-0.005em] text-ink">
-              {clause.titulo ?? `Cláusula ${clause.numero}`}
+              {titulo}
             </h3>
             <span
               className={`inline-flex items-center border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] ${meta.tone}`}
@@ -149,9 +234,17 @@ function ClauseItem({ clause }: { clause: AnaliseClausula }) {
             </span>
           </div>
 
-          <p className="mt-2 max-w-[68ch] text-[14px] leading-relaxed text-stone">
-            {clause.resumo}
-          </p>
+          {trecho && (
+            <p className="mt-2 max-w-[68ch] text-[13px] italic leading-relaxed text-mute">
+              “{trecho}”
+            </p>
+          )}
+
+          {explicacao && (
+            <p className="mt-2 max-w-[68ch] text-[14px] leading-relaxed text-stone">
+              {explicacao}
+            </p>
+          )}
 
           {hasGrounds && (
             <button
@@ -165,31 +258,30 @@ function ClauseItem({ clause }: { clause: AnaliseClausula }) {
               ) : (
                 <ChevronRight className="h-3 w-3" strokeWidth={1.5} />
               )}
-              {open ? "Ocultar fundamentos" : "Ver fundamentos"}
+              {open
+                ? "Ocultar fundamentos"
+                : `Ver ${fundamentos.length} fundamento${fundamentos.length > 1 ? "s" : ""}`}
             </button>
           )}
 
           {open && hasGrounds && (
             <ul className="mt-4 space-y-3 border-l border-accent pl-4">
-              {clause.dispositivos.map((d, i) => (
-                <li key={i} className="grid grid-cols-[5rem_1fr] gap-x-3">
+              {fundamentos.map((f, i) => (
+                <li key={i} className="grid grid-cols-[4rem_1fr] gap-x-3">
                   <span className="font-mono text-[11px] tabular-nums text-mute">
-                    {d.similaridade != null
-                      ? `${(d.similaridade * 100).toFixed(0)}%`
+                    {f.similaridade != null
+                      ? `${(f.similaridade * 100).toFixed(0)}%`
                       : "—"}
                   </span>
                   <div>
                     <div className="font-mono text-[11px] uppercase tracking-[0.12em] text-accent">
-                      {d.artigo}
-                      <span className="ml-2 text-mute normal-case tracking-normal">
-                        {d.fonte}
-                      </span>
+                      {f.referencia}
+                      {f.fonte && (
+                        <span className="ml-2 text-mute normal-case tracking-normal">
+                          {f.fonte}
+                        </span>
+                      )}
                     </div>
-                    {d.texto && (
-                      <p className="mt-1 max-w-[66ch] text-[13px] italic leading-relaxed text-stone">
-                        “{d.texto}”
-                      </p>
-                    )}
                   </div>
                 </li>
               ))}
@@ -201,6 +293,7 @@ function ClauseItem({ clause }: { clause: AnaliseClausula }) {
   )
 }
 
+// ── Pontos de negociação ───────────────────────────────────────────────────
 function NegotiationPoints({ points }: { points: string[] }) {
   return (
     <section className="border-t border-line bg-surface/40 px-6 py-7 md:px-10">
