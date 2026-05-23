@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Selo Contrato Justo — quadrado bordô com canto inferior-direito chanfrado. -->
+  <path d="M2 2h28v20l-8 8H2z" fill="#6e1423"/>
+  <!-- Iniciais CJ em creme, peso reforçado pra legibilidade em 16-32px. -->
+  <text x="15" y="20.5"
+        text-anchor="middle"
+        font-family="ui-monospace, 'Geist Mono', 'SF Mono', monospace"
+        font-size="13"
+        font-weight="700"
+        fill="#f9f7f0"
+        letter-spacing="0.5">CJ</text>
+</svg>

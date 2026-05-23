@@ -30,18 +30,18 @@ export function Sidebar({ onAnalyzePdf, onAskQuestion }: SidebarProps) {
   return (
     <aside className="flex h-full w-full flex-col bg-surface">
       {/* Header — wordmark + ação primária */}
-      <div className="px-5 pb-3 pt-6">
-        <Wordmark className="mb-5" />
+      <div className="px-4 pb-3 pt-5">
+        <Wordmark className="mb-4" />
         <NewChatPopover onAnalyzePdf={onAnalyzePdf} onAskQuestion={onAskQuestion} />
       </div>
 
       {/* Lista — única região com scroll */}
       <div className="min-h-0 flex-1 overflow-y-auto pb-2">
-        {/* Em análise (pending) — sobe ao topo */}
         {pending.length > 0 && (
           <>
-            <div className="px-5 pb-2 pt-3">
-              <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-accent">
+            <div className="px-4 pb-1.5 pt-3">
+              <div className="flex items-center gap-2 text-[11px] font-medium text-accent">
+                <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
                 Em análise · {pending.length}
               </div>
             </div>
@@ -55,17 +55,17 @@ export function Sidebar({ onAnalyzePdf, onAskQuestion }: SidebarProps) {
           </>
         )}
 
-        <div className="px-5 pb-2 pt-3">
-          <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-mute">
+        <div className="px-4 pb-1.5 pt-3">
+          <div className="text-[11px] font-medium text-mute">
             Conversas
           </div>
         </div>
 
         {loading && chats.length === 0 && (
-          <div className="px-5 py-3 font-mono text-[11px] text-mute">Carregando…</div>
+          <div className="px-4 py-2 text-[12.5px] text-mute">Carregando…</div>
         )}
         {!loading && chats.length === 0 && pending.length === 0 && (
-          <div className="px-5 py-3 text-[13px] leading-relaxed text-stone">
+          <div className="px-4 py-2 text-[13px] leading-relaxed text-stone">
             Nenhuma conversa ainda.
             <br />
             Comece analisando um contrato ou tirando uma dúvida.
@@ -90,13 +90,13 @@ export function Sidebar({ onAnalyzePdf, onAskQuestion }: SidebarProps) {
             type="button"
             onClick={() => setArchivedOpen((v) => !v)}
             aria-expanded={archivedOpen}
-            className="flex w-full items-center gap-2 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.16em] text-mute transition-colors duration-200 hover:text-stone"
+            className="flex w-full items-center gap-2 px-4 py-3 text-[11px] font-medium text-mute transition-colors duration-200 hover:text-ink"
           >
-            <Archive className="h-3 w-3" strokeWidth={1.5} />
+            <Archive className="h-3.5 w-3.5" strokeWidth={1.6} />
             Arquivados
             <ChevronDown
-              className={`ml-auto h-3 w-3 transition-transform duration-200 ${archivedOpen ? "rotate-180" : ""}`}
-              strokeWidth={1.5}
+              className={`ml-auto h-3.5 w-3.5 transition-transform duration-200 ${archivedOpen ? "rotate-180" : ""}`}
+              strokeWidth={1.6}
             />
           </button>
 
@@ -107,7 +107,7 @@ export function Sidebar({ onAnalyzePdf, onAskQuestion }: SidebarProps) {
               )}
               {archived.map((chat) => (
                 <li key={chat.id} className="px-3 py-1.5 opacity-60">
-                  <div className="truncate font-sans text-[13px] text-stone">
+                  <div className="truncate text-[13px] text-stone">
                     {chat.titulo ?? "Sem título"}
                   </div>
                 </li>

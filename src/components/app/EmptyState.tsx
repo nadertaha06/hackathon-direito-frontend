@@ -42,7 +42,7 @@ export function EmptyState({ onPdfSelected, onAskQuestion }: EmptyStateProps) {
           }}
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
-          className={`group relative flex flex-col bg-paper p-8 transition-colors duration-200 ${
+          className={`group relative flex flex-col bg-elevated p-8 transition-colors duration-200 ${
             dragOver ? "bg-surface" : ""
           }`}
         >
@@ -100,7 +100,7 @@ export function EmptyState({ onPdfSelected, onAskQuestion }: EmptyStateProps) {
         </div>
 
         {/* Card 2 — standalone chat */}
-        <div className="flex flex-col bg-paper p-8">
+        <div className="flex flex-col bg-elevated p-8">
           <div className="mb-6 flex items-center gap-3">
             <span
               className="grid h-9 w-9 place-items-center border border-line bg-elevated text-accent"

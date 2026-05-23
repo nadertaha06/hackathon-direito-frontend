@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react"
 import type { DragEvent, KeyboardEvent } from "react"
+import toast from "react-hot-toast"
 import { ArrowUp, Paperclip, Square } from "lucide-react"
 
 interface ChatInputProps {
-  /** Quando true, mostra paperclip de upload (chat standalone). */
+  /** Quando true, anexar PDF abre o fluxo de análise. Quando false, avisa que já existe análise. */
   allowUpload: boolean
   /** Streaming em andamento — desabilita envio, botão vira "parar". */
   streaming: boolean
@@ -24,12 +25,11 @@ export function ChatInput({
   const ref = useRef<HTMLTextAreaElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
-  // Auto-resize: 1 linha mínimo, ~6 linhas máximo.
   useEffect(() => {
     const el = ref.current
     if (!el) return
     el.style.height = "0px"
-    const h = Math.min(el.scrollHeight, 6 * 22 + 24)
+    const h = Math.min(el.scrollHeight, 8 * 22 + 24)
     el.style.height = `${h}px`
   }, [value])
 
@@ -47,54 +47,43 @@ export function ChatInput({
     }
   }
 
+  function handleFile(file: File | null | undefined) {
+    if (!file) return
+    if (!allowUpload || !onPdfDropped) {
+      toast("Este processo já tem uma análise. Abra uma nova conversa para outro contrato.", {
+        icon: "📄",
+      })
+      return
+    }
+    if (file.type !== "application/pdf") {
+      toast.error("Envie um PDF.")
+      return
+    }
+    onPdfDropped(file)
+  }
+
   function handleDrop(e: DragEvent<HTMLDivElement>) {
     e.preventDefault()
     setDragOver(false)
-    if (!allowUpload || !onPdfDropped) return
-    const file = e.dataTransfer.files?.[0]
-    if (file && file.type === "application/pdf") onPdfDropped(file)
+    handleFile(e.dataTransfer.files?.[0])
   }
 
   return (
     <div
       onDragOver={(e) => {
-        if (!allowUpload) return
         e.preventDefault()
         setDragOver(true)
       }}
       onDragLeave={() => setDragOver(false)}
       onDrop={handleDrop}
-      className={`relative border border-line bg-surface transition-colors duration-200 ${
-        dragOver ? "border-accent bg-elevated" : ""
-      }`}
-      style={{ borderRadius: 4 }}
+      className="relative"
     >
-      <div className="flex items-end gap-2 p-3">
-        {allowUpload && (
-          <>
-            <input
-              ref={fileRef}
-              type="file"
-              accept="application/pdf"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0]
-                if (file && onPdfDropped) onPdfDropped(file)
-                e.target.value = ""
-              }}
-            />
-            <button
-              type="button"
-              onClick={() => fileRef.current?.click()}
-              aria-label="Anexar PDF"
-              title="Anexar PDF para analisar"
-              className="grid h-9 w-9 shrink-0 place-items-center text-stone transition-colors duration-200 hover:text-accent"
-            >
-              <Paperclip className="h-4 w-4" strokeWidth={1.5} />
-            </button>
-          </>
-        )}
-
+      <div
+        className={`relative flex flex-col bg-elevated shadow-card transition-all duration-200 ${
+          dragOver ? "ring-2 ring-accent/60" : "ring-1 ring-line/80"
+        }`}
+        style={{ borderRadius: 18 }}
+      >
         <textarea
           ref={ref}
           rows={1}
@@ -105,51 +94,73 @@ export function ChatInput({
           placeholder={
             streaming
               ? "Aguardando resposta…"
-              : allowUpload
-                ? "Pergunte sobre uma cláusula ou solte um PDF aqui"
-                : "Pergunte algo sobre esta análise"
+              : "Pergunte sobre cláusulas, prazos, multas — ou anexe um PDF"
           }
-          className="min-h-[24px] flex-1 resize-none bg-transparent py-1.5 font-sans text-[15px] leading-relaxed text-ink placeholder:text-mute focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+          className="min-h-[28px] w-full resize-none bg-transparent px-5 pt-4 pb-1 font-sans text-[15px] leading-relaxed text-ink placeholder:text-mute focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
         />
 
-        {streaming ? (
+        <div className="flex items-center justify-between gap-2 px-3 pb-3 pt-1">
+          <input
+            ref={fileRef}
+            type="file"
+            accept="application/pdf"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              handleFile(file)
+              e.target.value = ""
+            }}
+          />
           <button
             type="button"
-            onClick={onStop}
-            aria-label="Parar geração"
-            title="Parar"
-            className="grid h-9 w-9 shrink-0 place-items-center bg-ink text-paper transition-colors duration-200 hover:bg-accent"
-            style={{ borderRadius: 2 }}
+            onClick={() => fileRef.current?.click()}
+            aria-label="Anexar PDF do contrato"
+            title={allowUpload ? "Anexar PDF" : "Já existe análise nesta conversa"}
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-stone transition-colors duration-200 hover:bg-surface hover:text-accent"
           >
-            <Square className="h-3.5 w-3.5" strokeWidth={1.5} fill="currentColor" />
+            <Paperclip className="h-4 w-4" strokeWidth={1.6} />
           </button>
-        ) : (
-          <button
-            type="button"
-            onClick={submit}
-            disabled={!value.trim()}
-            aria-label="Enviar"
-            title="Enviar (Enter)"
-            className="grid h-9 w-9 shrink-0 place-items-center bg-accent text-white transition-colors duration-200 hover:bg-accent-soft disabled:cursor-not-allowed disabled:opacity-40"
-            style={{ borderRadius: 2 }}
-          >
-            <ArrowUp className="h-4 w-4" strokeWidth={1.5} />
-          </button>
-        )}
+
+          {streaming ? (
+            <button
+              type="button"
+              onClick={onStop}
+              aria-label="Parar geração"
+              title="Parar"
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-ink text-paper transition-colors duration-200 hover:bg-accent"
+            >
+              <Square className="h-3.5 w-3.5" strokeWidth={1.5} fill="currentColor" />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={submit}
+              disabled={!value.trim()}
+              aria-label="Enviar"
+              title="Enviar (Enter)"
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-accent text-paper transition-all duration-200 hover:bg-accent-soft disabled:cursor-not-allowed disabled:bg-line disabled:text-mute"
+            >
+              <ArrowUp className="h-4 w-4" strokeWidth={2} />
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="flex items-center justify-between border-t border-line px-3 py-1.5">
-        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-mute">
-          {allowUpload ? "Enter envia · Shift+Enter quebra linha · arraste PDF" : "Enter envia · Shift+Enter quebra linha"}
-        </span>
-      </div>
+      <p className="mt-2 text-center text-[11px] text-mute">
+        Contrato Justo pode cometer enganos. Confira as fontes citadas antes de decidir.
+      </p>
 
-      {dragOver && allowUpload && (
+      {dragOver && (
         <div
-          className="pointer-events-none absolute inset-1 grid place-items-center border-2 border-dashed border-accent bg-elevated/80 font-mono text-[12px] uppercase tracking-[0.14em] text-accent"
-          style={{ borderRadius: 4 }}
+          className="pointer-events-none absolute inset-x-0 top-0 grid place-items-center font-mono text-[11px] uppercase tracking-[0.20em] text-accent"
+          style={{
+            height: "calc(100% - 28px)",
+            borderRadius: 18,
+            background: "rgba(255, 253, 249, 0.92)",
+            border: "2px dashed var(--color-accent)",
+          }}
         >
-          Soltar para analisar
+          {allowUpload ? "Soltar para analisar" : "Esta conversa já tem análise"}
         </div>
       )}
     </div>

@@ -8,25 +8,35 @@
    Toque de dourado quente apenas sobre as faixas bordô (combinação clássica).
    ───────────────────────────────────────────────────────────────────────── */
 @theme {
-  /* Superfícies */
-  --color-paper: #f7f3ee;        /* fundo base (creme) */
-  --color-surface: #efe8de;      /* seção/painel rebaixado */
-  --color-elevated: #fffdf9;     /* cartões */
-  --color-line: #e2dace;         /* borda (hairline quente) */
+  /* Superfícies — ivory + tan, calmo, estilo conversa */
+  --color-paper: #f9f7f0;        /* fundo base (ivory levemente cálido) */
+  --color-surface: #eae4d4;      /* tan macio — bubble do usuário, sidebar */
+  --color-elevated: #fffefa;     /* cartões, input — quase branco */
+  --color-line: #dad3c0;         /* hairline mais firme e quente */
+
+  /* Superfícies — dossiê / sala de arquivo (chat) */
+  --color-vellum: #ece1cc;       /* pergaminho envelhecido — fundo do dossiê */
+  --color-vellum-deep: #e0d3b8;  /* dobra/sombra do pergaminho */
+  --color-archive: #2a201c;      /* tinta-arquivo (sepia profunda) — capa do processo */
+  --color-archive-soft: #3a2e29; /* dobra do arquivo */
+  --color-rule: #c9b896;         /* filete sobre pergaminho (mais firme que line) */
 
   /* Texto */
-  --color-ink: #1f1b1a;          /* primário (quase-preto) */
-  --color-stone: #5a524c;        /* secundário (~7:1 no creme) */
-  --color-mute: #8a8077;         /* terciário */
+  --color-ink: #15110d;          /* primário — quase-preto cálido, mais profundo */
+  --color-stone: #54493f;        /* secundário — bem legível sobre paper */
+  --color-mute: #897f73;         /* terciário — placeholders, timestamps */
+  --color-margin: #6b5d52;       /* tinta marginalia (sobre pergaminho) */
 
   /* Marca: bordô / vinho */
   --color-accent: #6e1423;       /* bordô — eyebrows, links, botões, faixas */
   --color-accent-soft: #561019;  /* vinho mais escuro — hover */
+  --color-accent-bright: #8a1e2f;/* bordô legível sobre superfícies escuras */
 
   /* Dourado quente (só sobre faixas bordô — burgundy + gold) */
   --color-gold: #b8893c;         /* dourado sobre claro */
   --color-gold-soft: #9a6b1f;    /* hover */
   --color-gold-light: #d9a441;   /* dourado legível sobre o bordô */
+  --color-seal: #a36a1e;         /* carimbo/selo sobre pergaminho */
 
   /* Semânticos */
   --color-success: #3d6b48;
@@ -101,6 +111,90 @@
   .italic-display {
     font-family: var(--font-display);
     font-style: italic;
+  }
+
+  /* Drop cap editorial — primeira letra do parecer. */
+  .drop-cap::first-letter {
+    font-family: var(--font-display);
+    font-style: italic;
+    color: var(--color-accent);
+    font-size: 3.2em;
+    line-height: 0.92;
+    float: left;
+    padding: 0.05em 0.12em 0 0;
+    margin-right: 0.02em;
+  }
+
+  /* Pergaminho — fundo do dossiê com leve textura por gradientes radiais. */
+  .bg-vellum-page {
+    background-color: var(--color-vellum);
+    background-image:
+      radial-gradient(at 12% 8%, rgba(110, 20, 35, 0.04) 0, transparent 40%),
+      radial-gradient(at 88% 96%, rgba(110, 20, 35, 0.05) 0, transparent 38%),
+      radial-gradient(at 50% 50%, rgba(255, 253, 249, 0.5) 0, transparent 70%);
+  }
+
+  /* Capa do processo — superfície sepia profunda. */
+  .bg-archive-cover {
+    background-color: var(--color-archive);
+    background-image:
+      linear-gradient(180deg, rgba(255, 253, 249, 0.03), transparent 60%),
+      radial-gradient(at 100% 0%, rgba(184, 137, 60, 0.08), transparent 50%);
+  }
+
+  /* Filete duplo (rodapé de processo). */
+  .rule-double-top {
+    border-top: 1px solid var(--color-rule);
+    box-shadow: 0 -3px 0 -2px var(--color-rule);
+  }
+  .rule-double-bottom {
+    border-bottom: 1px solid var(--color-rule);
+    box-shadow: 0 3px 0 -2px var(--color-rule);
+  }
+
+  /* Carimbo "EM DELIBERAÇÃO" — anel pulsante. */
+  .stamp-deliberacao {
+    border: 1px solid var(--color-accent);
+    color: var(--color-accent);
+    padding: 2px 8px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    transform: rotate(-2deg);
+    animation: stamp-pulse 1.6s ease-in-out infinite;
+  }
+
+  @keyframes stamp-pulse {
+    0%, 100% { opacity: 0.55; }
+    50%      { opacity: 1; }
+  }
+
+  /* Cursor de digitação (linha vertical) em vez de bloco. */
+  .typing-caret {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    margin-left: 2px;
+    vertical-align: -0.15em;
+    background: var(--color-accent);
+    animation: cj-caret 0.95s steps(2) infinite;
+  }
+  @keyframes cj-caret { 50% { opacity: 0; } }
+
+  /* Ornamento editorial (separador). */
+  .ornament-rule {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--color-rule);
+  }
+  .ornament-rule::before,
+  .ornament-rule::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--color-rule);
   }
 }
 

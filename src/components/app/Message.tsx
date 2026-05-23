@@ -21,13 +21,13 @@ export function Message({ message, onRegenerate, onRetry }: MessageProps) {
   }
   if (message.payload_json) {
     return (
-      <div className="my-8">
+      <div className="my-6">
         <AnalysisCard payload={message.payload_json} />
       </div>
     )
   }
   return (
-    <AssistantBubble
+    <Assistant
       message={message}
       onRegenerate={onRegenerate}
       onRetry={onRetry}
@@ -35,26 +35,22 @@ export function Message({ message, onRegenerate, onRetry }: MessageProps) {
   )
 }
 
+/** Mensagem do usuário — bubble macio à direita, estilo Claude. */
 function UserBubble({ content }: { content: string }) {
-  const lines = content.split("\n")
   return (
-    <div className="my-6 flex justify-end">
+    <div className="my-4 flex justify-end">
       <div
-        className="max-w-[70%] border border-line bg-surface px-4 py-2.5 text-[14.5px] leading-relaxed text-ink"
-        style={{ borderRadius: 4 }}
+        className="max-w-[78%] bg-surface px-4 py-3 text-[15px] leading-relaxed text-ink"
+        style={{ borderRadius: 18 }}
       >
-        {lines.map((l, i) => (
-          <span key={i}>
-            {l}
-            {i < lines.length - 1 && <br />}
-          </span>
-        ))}
+        <p className="whitespace-pre-wrap break-words">{content}</p>
       </div>
     </div>
   )
 }
 
-function AssistantBubble({
+/** Resposta da IA — texto puro à esquerda, sem caixa nem filete. */
+function Assistant({
   message,
   onRegenerate,
   onRetry,
@@ -72,82 +68,66 @@ function AssistantBubble({
       setCopied(true)
       setTimeout(() => setCopied(false), 1500)
     } catch {
-      /* clipboard indisponível em contextos não-https — silencioso */
+      /* contexto não-https — silencioso */
     }
   }
 
   return (
-    <div className="group my-6 flex justify-start">
-      <div className="w-full max-w-[680px] border-l-2 border-accent pl-5">
-        <div className={message.failed ? "opacity-60" : undefined}>
-          <Markdown source={message.content} />
-          {message.streaming && (
-            <span
-              aria-hidden
-              className="ml-0.5 inline-block h-[1.1em] w-[6px] -translate-y-[2px] align-middle bg-accent"
-              style={{ animation: "cj-blink 0.9s steps(2) infinite" }}
-            />
-          )}
-        </div>
-
-        {message.failed && (
-          <div
-            className="mt-3 flex items-center gap-2 border border-danger/40 bg-paper px-3 py-2"
-            style={{ borderRadius: 4 }}
-          >
-            <AlertTriangle className="h-3.5 w-3.5 text-danger" strokeWidth={1.5} />
-            <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-danger">
-              Resposta interrompida
-            </span>
-            {onRetry && (
-              <button
-                type="button"
-                onClick={onRetry}
-                className="ml-auto font-mono text-[11px] uppercase tracking-[0.14em] text-accent transition-colors duration-200 hover:text-accent-soft"
-              >
-                Tentar novamente
-              </button>
-            )}
-          </div>
-        )}
-
-        {!message.streaming && !message.failed && (
-          <div className="mt-2 flex items-center gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-            <button
-              type="button"
-              onClick={copy}
-              aria-label="Copiar resposta"
-              title="Copiar"
-              className="inline-flex items-center gap-1 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-stone transition-colors duration-200 hover:text-ink"
-            >
-              {copied ? (
-                <Check className="h-3 w-3" strokeWidth={1.5} />
-              ) : (
-                <Copy className="h-3 w-3" strokeWidth={1.5} />
-              )}
-              {copied ? "copiado" : "copiar"}
-            </button>
-            {canRegenerate && (
-              <button
-                type="button"
-                onClick={() => onRegenerate?.(message.id)}
-                aria-label="Regenerar resposta"
-                title="Regenerar"
-                className="inline-flex items-center gap-1 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-stone transition-colors duration-200 hover:text-accent"
-              >
-                <RefreshCcw className="h-3 w-3" strokeWidth={1.5} />
-                regenerar
-              </button>
-            )}
-          </div>
-        )}
+    <article className="group my-6">
+      <div className={message.failed ? "opacity-60" : undefined}>
+        <Markdown source={message.content} />
+        {message.streaming && <span aria-hidden className="typing-caret" />}
       </div>
 
-      <style>{`
-        @keyframes cj-blink {
-          50% { opacity: 0; }
-        }
-      `}</style>
-    </div>
+      {message.failed && (
+        <div
+          className="mt-3 flex items-center gap-2 border border-danger/40 bg-elevated px-3 py-2"
+          style={{ borderRadius: 8 }}
+        >
+          <AlertTriangle className="h-3.5 w-3.5 text-danger" strokeWidth={1.5} />
+          <span className="text-[12px] text-danger">Resposta interrompida</span>
+          {onRetry && (
+            <button
+              type="button"
+              onClick={onRetry}
+              className="ml-auto text-[12px] font-medium text-accent transition-colors duration-200 hover:text-accent-soft"
+            >
+              Tentar novamente
+            </button>
+          )}
+        </div>
+      )}
+
+      {!message.streaming && !message.failed && (
+        <div className="mt-1 flex items-center gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+          <button
+            type="button"
+            onClick={copy}
+            aria-label="Copiar resposta"
+            title="Copiar"
+            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[12px] text-mute transition-colors duration-200 hover:bg-surface hover:text-ink"
+          >
+            {copied ? (
+              <Check className="h-3.5 w-3.5" strokeWidth={1.8} />
+            ) : (
+              <Copy className="h-3.5 w-3.5" strokeWidth={1.8} />
+            )}
+            {copied ? "Copiado" : "Copiar"}
+          </button>
+          {canRegenerate && (
+            <button
+              type="button"
+              onClick={() => onRegenerate?.(message.id)}
+              aria-label="Regenerar resposta"
+              title="Regenerar"
+              className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[12px] text-mute transition-colors duration-200 hover:bg-surface hover:text-accent"
+            >
+              <RefreshCcw className="h-3.5 w-3.5" strokeWidth={1.8} />
+              Regenerar
+            </button>
+          )}
+        </div>
+      )}
+    </article>
   )
 }
