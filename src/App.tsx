@@ -3,7 +3,6 @@ import { Toaster } from "react-hot-toast"
 import { LandingPage } from "@/pages/LandingPage"
 import { LoginPage } from "@/pages/LoginPage"
 import { CadastroPage } from "@/pages/CadastroPage"
-import { BrandPreviewPage } from "@/pages/BrandPreviewPage"
 import { AppHomePage, AppChatPage } from "@/pages/AppPage"
 import { AnalyzingPage } from "@/pages/AnalyzingPage"
 import { AppLayout } from "@/components/app/AppLayout"
@@ -29,7 +28,6 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/cadastro" element={<CadastroPage />} />
-        <Route path="/brand-preview" element={<BrandPreviewPage />} />
 
         <Route path="/app" element={<AppRoot />}>
           <Route index element={<AppHomePage />} />
